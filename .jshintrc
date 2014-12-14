@@ -1,0 +1,17 @@
+{
+  "expr": true,
+  "eqeqeq": true,
+  "undef": true,
+  "boss": true,
+  "sub": true,
+  "supernew": true,
+  "loopfunc": true,
+  "onecase": true,
+  "quotmark": "single",
+
+  "overrides": {
+    ".enb/*.js": { "node": true },
+    "*.blocks/**/*!(.bemjson|.bemdecl|.deps).js": { "predef": ["modules"], "browser": true },
+    "**/*.@(deps|bemjson).js": { "asi": true }
+  }
+}

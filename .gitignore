@@ -1,0 +1,7 @@
+.enb/tmp
+/libs
+/node_modules
+/tests
+/specs/*/*
+!/specs/*/*.bemdecl.js
+!/specs/*/*.html

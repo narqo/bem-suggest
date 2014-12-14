@@ -1,0 +1,6 @@
+({
+    shouldDeps : [
+        'menu',
+        'menu-item'
+    ]
+})
