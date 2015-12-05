@@ -1,24 +1,32 @@
 block('suggest')(
-    def().match(!this._suggest)(function() {
+    def().match(function() { return !this._suggest })(function() {
         applyNext({ _suggest : this.ctx });
     }),
 
     js()(true),
 
     content()(function() {
-        var block = this.block,
-            mods = this.mods;
+        var mods = this.mods,
+            elemMods = this.extend({}, this.mods);
+
+        // NOTE: don't pass dataprovider to elements
+        elemMods['has-dataprovider'] = null;
+
         return [
-            { block : 'input',
-                mods : mods,
-                mix : { block : block, elem : 'control' },
-                val : this._suggest.val,
-                placeholder : this._suggest.placeholder
-            },
-            { block : 'popup',
-                mods : { theme : mods.theme, target : 'anchor', autoclosable : true },
+            { elem : 'input', elemMods : elemMods },
+            {
+                block : 'popup',
+                mods : {
+                    theme : mods.theme,
+                    target : 'anchor',
+                    autoclosable : true
+                },
                 directions : ['bottom-left', 'bottom-right', 'top-left', 'top-right'],
-                content : { block : block, elem : 'menu' }
+                content : {
+                    block : this.block,
+                    elem : 'datalist',
+                    elemMods : elemMods
+                }
             }
         ];
     })

@@ -13,7 +13,7 @@ var path = require('path'),
 
     BEMJSON_SUFFIX = '\\.bemjson\\.js$',
     BEMJSON_SUFFIX_RE = new RegExp(BEMJSON_SUFFIX),
-    TESTS_PATH_RE = new RegExp('(\\w+)\\.(tests|examples)\\/(\\w+)' + BEMJSON_SUFFIX),
+    TESTS_PATH_RE = new RegExp('([a-z0-9_-]+)\\.(tests|examples)\\/([a-z0-9_-]+)' + BEMJSON_SUFFIX),
     SPECS_PATH_RE = /(\w+)\.(spec)\.js$/,
 
     BEMHTML_DEV_MODE = process.env.BEMHTML_ENV === 'development';
@@ -23,10 +23,7 @@ module.exports = function(config) {
 };
 
 function createTestsNodes(config) {
-    glob('blocks/**/*.tests/*.bemjson.js', function(err, files) {
-        if(err) throw err;
-        files.forEach(bemjsonNodeFactory(config));
-    });
+    glob.sync('blocks/**/*.tests/*.bemjson.js').forEach(bemjsonNodeFactory(config));
 
     config.nodes('tests/*/*', function(nodeConfig) {
         var tech = techFactory(nodeConfig);
@@ -88,13 +85,19 @@ function bemjsonNodeFactory(config) {
             nodeName = [type, bemItem, name].join(path.sep);
         });
 
-        levels.push(config.resolvePath(src.replace(BEMJSON_SUFFIX_RE, '.blocks')));
+        var nodeLevels = levels.slice();
+
+        try {
+            nodeLevels.push(config.resolvePath(src.replace(BEMJSON_SUFFIX_RE, '.blocks')));
+        } catch(e) {
+            // do nothing?
+        }
 
         config.node(nodeName, function(nodeConfig) {
             var tech = techFactory(nodeConfig),
                 srcTarget = resolveSrcTarget(config, nodeConfig, src);
 
-            tech(techs.levels, { levels : levels });
+            tech(techs.levels, { levels : nodeLevels });
 
             tech(fileProvider, { target : srcTarget });
             tech(fileCopy, { sourceTarget : srcTarget, destTarget : '?.bemjson.js' });
@@ -115,7 +118,7 @@ function getLevels(config) {
         'libs/bem-components/desktop.blocks',
         'libs/bem-components/design/desktop.blocks',
         'blocks'
-    ].map(config.resolvePath.bind(config));
+    ];
 }
 
 function getSpecLevels(config) {
@@ -124,5 +127,5 @@ function getSpecLevels(config) {
         'libs/bem-core/common.blocks',
         'libs/bem-core/desktop.blocks',
         'blocks'
-    ].map(config.resolvePath.bind(config));
+    ];
 }

@@ -7,7 +7,7 @@
   ],
   "dependencies": {
     "bem-core": "^2.4.0",
-    "bem-components": "#aa661a476896c97115a0ba27b4eb40f8d179866f"
+    "bem-components": "^2.1.0"
   },
   "devDependencies": {
     "bem-pr": "~0.10.0"

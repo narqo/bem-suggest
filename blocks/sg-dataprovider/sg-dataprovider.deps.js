@@ -1,7 +1,7 @@
 ({
     shouldDeps : [
-        'next-tick',
         'inherit',
-        'events'
+        'events',
+        'next-tick'
     ]
 })

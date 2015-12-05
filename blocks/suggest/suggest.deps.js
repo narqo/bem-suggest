@@ -1,7 +1,6 @@
-[{
-    mustDeps : { block : 'i-bem', elems : 'dom' },
+({
     shouldDeps : [
-        { elems : 'menu' },
+        { elems : ['input', 'datalist'] },
         {
             block : 'popup',
             mods : {
@@ -11,8 +10,4 @@
         },
         { block : 'keyboard', elem : 'codes' }
     ]
-},
-{
-    tech : 'js',
-    mustDeps : { block : 'menu-item', tech : 'bemhtml' }
-}]
+})

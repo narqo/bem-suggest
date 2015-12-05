@@ -4,6 +4,6 @@
         { block : 'popup', mods : { theme : 'islands' } }
     ],
     shouldDeps : [
-        { block : 'menu', mods : { theme : 'islands' } }
+        { block : 'sg-datalist', mods : { theme : 'islands' } }
     ]
 })

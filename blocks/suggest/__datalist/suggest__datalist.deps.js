@@ -1,0 +1,3 @@
+({
+    shouldDeps : 'sg-datalist'
+})

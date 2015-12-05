@@ -1,0 +1,11 @@
+block('suggest').elem('input')(
+    def()(function() {
+        return applyCtx({
+            block : 'input',
+            mods : this.elemMods,
+            mix : { block : this.block, elem : 'control' },
+            val : this._suggest.val,
+            placeholder : this._suggest.placeholder
+        });
+    })
+)
