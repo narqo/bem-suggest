@@ -16,7 +16,8 @@
     "enb-borschik": "^2.1.0",
     "enb-js": "^1.1.0",
     "enb-stylus": "^2.2.0",
-    "glob": "^4.2.1"
+    "glob": "^4.2.1",
+    "mkdirp": "^0.5.1"
   },
   "private": true
 }
