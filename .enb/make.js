@@ -1,21 +1,18 @@
-var path = require('path'),
+var fs = require('fs'),
+    path = require('path'),
     glob = require('glob'),
+    mkdirp = require('mkdirp'),
     techs = require('enb-bem-techs'),
-    fileProvider = require('enb/techs/file-provider'),
     fileCopy = require('enb/techs/file-copy'),
     fileMerge = require('enb/techs/file-merge'),
+    fileProvider = require('enb/techs/file-provider'),
+    stylus = require('enb-stylus/techs/stylus'),
     bemhtml = require('enb-bemxjst/techs/bemhtml'),
-    html = require('enb-bemxjst/techs/html-from-bemjson'),
-    modules = require('enb-modules/techs/prepend-modules'),
-    borschik = require('enb-borschik/techs/borschik'),
-    browserJs = require('enb-diverse-js/techs/browser-js'),
-    styl = require('enb-stylus/techs/css-stylus-with-autoprefixer'),
+    bemjsonToHtml = require('enb-bemxjst/techs/bemjson-to-html'),
+    browserJs = require('enb-js/techs/browser-js'),
+    borschik = require('enb-borschik/techs/borschik');
 
-    BEMJSON_SUFFIX = '\\.bemjson\\.js$',
-    BEMJSON_SUFFIX_RE = new RegExp(BEMJSON_SUFFIX),
-    TESTS_PATH_RE = new RegExp('([a-z0-9_-]+)\\.(tests|examples)\\/([a-z0-9_-]+)' + BEMJSON_SUFFIX),
-    SPECS_PATH_RE = /(\w+)\.(spec)\.js$/,
-
+const TESTS_PATH_RE = /(\w[a-z0-2_-]+)\.(tests|examples)\/(\w+)\.bemjson\.js$/,
     BEMHTML_DEV_MODE = process.env.BEMHTML_ENV === 'development';
 
 module.exports = function(config) {
@@ -26,90 +23,85 @@ function createTestsNodes(config) {
     glob.sync('blocks/**/*.tests/*.bemjson.js').forEach(bemjsonNodeFactory(config));
 
     config.nodes('tests/*/*', function(nodeConfig) {
-        var tech = techFactory(nodeConfig);
+        nodeConfig.addTechs([
+            [techs.bemjsonToBemdecl],
+            [techs.deps],
+            [techs.files],
 
-        tech(techs.bemjsonToBemdecl);
-        tech(techs.deps);
-        tech(techs.files);
+            [bemhtml, { devMode : BEMHTML_DEV_MODE }],
+            [bemjsonToHtml],
 
-        tech(bemhtml, { devMode : BEMHTML_DEV_MODE });
-        tech(html);
+            // FIXME: generated sourcemaps work incorrectly – generated paths aren't served by enb server
+            [browserJs, { includeYM : true/*, sourcemap : true */}],
 
-        tech(techs.depsByTechToBemdecl, {
-            target : '?.bemhtml.bemdecl.js',
-            sourceTech : 'js',
-            destTech : 'bemhtml'
-        });
-        tech(techs.deps, {
-            target : '?.bemhtml.deps.js',
-            bemdeclFile : '?.bemhtml.bemdecl.js'
-        });
-        tech(techs.files, {
-            depsFile : '?.bemhtml.deps.js',
-            filesTarget : '?.bemhtml.files',
-            dirsTarget : '?.bemhtml.dirs'
-        });
-        tech(bemhtml, {
-            target : '?.browser.bemhtml.js',
-            filesTarget : '?.bemhtml.files',
-            devMode : BEMHTML_DEV_MODE
-        });
+            [techs.depsByTechToBemdecl, {
+                target : '?.bemhtml.bemdecl.js',
+                sourceTech : 'js',
+                destTech : 'bemhtml'
+            }],
+            [techs.deps, {
+                target : '?.bemhtml.deps.js',
+                bemdeclFile : '?.bemhtml.bemdecl.js'
+            }],
+            [techs.files, {
+                depsFile : '?.bemhtml.deps.js',
+                filesTarget : '?.bemhtml.files',
+                dirsTarget : '?.bemhtml.dirs'
+            }],
+            [bemhtml, {
+                target : '?.browser.bemhtml.js',
+                filesTarget : '?.bemhtml.files',
+                devMode : BEMHTML_DEV_MODE
+            }],
 
-        tech(browserJs);
+            [fileMerge, {
+                target : '?.js',
+                sources : ['?.browser.js', '?.browser.bemhtml.js']
+            }],
 
-        tech(fileMerge, {
-            target : '?.pre.js',
-            sources : ['?.browser.bemhtml.js', '?.browser.js']
-        });
-
-        tech(modules, { source : '?.pre.js', target : '?.js' });
-
-        tech(styl);
+            [stylus]
+        ]);
 
         nodeConfig.addTargets(['?.html', '?.css', '?.js']);
     });
 }
 
-function techFactory(nodeConfig) {
-    return function(tech, opts) {
-        nodeConfig.addTech(opts? [tech, opts] : tech);
-    };
-}
-
 function bemjsonNodeFactory(config) {
-    var levels = getLevels(config);
+    var levels = getLevels();
 
     return function(src) {
-        var nodeName = '';
+        var nodeName, nodePath;
+
         src.replace(TESTS_PATH_RE, function(_, bemItem, type, name) {
-            nodeName = [type, bemItem, name].join(path.sep);
+            nodeName = [ type, bemItem, name ].join(path.sep);
+            nodePath = config.resolvePath(nodeName);
+            fs.existsSync(nodePath) || mkdirp.sync(nodePath);
         });
 
-        var nodeLevels = levels.slice();
-
-        try {
-            nodeLevels.push(config.resolvePath(src.replace(BEMJSON_SUFFIX_RE, '.blocks')));
-        } catch(e) {
-            // do nothing?
-        }
+        var srcLevel = config.resolvePath(src.replace(/bemjson\.js$/, 'blocks'));
 
         config.node(nodeName, function(nodeConfig) {
-            var tech = techFactory(nodeConfig),
-                srcTarget = resolveSrcTarget(config, nodeConfig, src);
+            var destDir = nodeConfig.getNodePath(),
+                srcTarget = resolveSrcTarget(config, src, destDir),
+                levels = getLevels(config);
 
-            tech(techs.levels, { levels : nodeLevels });
+            fs.existsSync(srcLevel) && (levels = levels.concat(srcLevel));
 
-            tech(fileProvider, { target : srcTarget });
-            tech(fileCopy, { sourceTarget : srcTarget, destTarget : '?.bemjson.js' });
+            nodeConfig.addTechs([
+                [techs.levels, { levels : levels }],
+
+                [fileProvider, { target : srcTarget }],
+                [fileCopy, { sourceTarget : srcTarget, destTarget : '?.bemjson.js' }]
+            ]);
         });
     };
 }
 
-function resolveSrcTarget(config, nodeConfig, src) {
-    return path.relative(nodeConfig.getNodePath(), config.resolvePath(src));
+function resolveSrcTarget(config, src, dest) {
+    return path.relative(dest, config.resolvePath(src));
 }
 
-function getLevels(config) {
+function getLevels() {
     return [
         'libs/bem-core/common.blocks',
         'libs/bem-core/desktop.blocks',
@@ -121,7 +113,7 @@ function getLevels(config) {
     ];
 }
 
-function getSpecLevels(config) {
+function getSpecLevels() {
     return [
         'libs/bem-pr/spec.blocks',
         'libs/bem-core/common.blocks',
