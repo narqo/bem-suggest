@@ -38,13 +38,13 @@ provide(BemDom.decl(this.name, {
             throw new Error('dataprovider can\'t be set twice');
         }
         this._dataprovider = dataprovider.on({
-            'items' : this._onProviderGotItems,
+            'data' : this._onProviderGotData,
             'error' : this._onProviderGotError
         }, this);
     },
 
     requestData : function(params) {
-        this.getDataProvider().get(params);
+        this.getDataProvider().get(params).done();
         return this;
     },
 
@@ -110,10 +110,10 @@ provide(BemDom.decl(this.name, {
         this.emit('item-click', data);
     },
 
-    _onProviderGotItems : function(e, data) {
+    _onProviderGotData : function(e, data) {
         this
             .emit('items', data)
-            ._updateMenu(data.items);
+            ._updateMenu(data.result);
     },
 
     _onProviderGotError : function(e, data) {

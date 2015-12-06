@@ -1,7 +1,7 @@
 modules.define(
     'timezone-provider',
-    ['inherit', 'sg-dataprovider', 'timezone-provider__storage'],
-    function(provide, inherit, DataProvider, TzStorage) {
+    ['inherit', 'vow', 'sg-dataprovider', 'timezone-provider__storage'],
+    function(provide, inherit, vow, DataProvider, TzStorage) {
 
 provide(inherit(DataProvider, {
     __constructor : function(data) {
@@ -10,13 +10,19 @@ provide(inherit(DataProvider, {
     },
 
     /** @override */
-    _getData : function(params, callback) {
-        var _this = this,
-            query = this._buildQuery(params.val);
+    _getData : function(params) {
+        var query = this._buildQuery(params.val),
+            deferred = vow.defer();
 
         if(query) {
-            this._storage.find(query, callback);
+            this._storage.find(query, function(err, data) {
+                err? deferred.reject(err) : deferred.resolve(data);
+            });
+        } else {
+            deferred.resolve([]);
         }
+
+        return deferred.promise();
     },
 
     _buildQuery : function(val) {

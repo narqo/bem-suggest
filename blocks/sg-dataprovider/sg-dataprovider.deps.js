@@ -2,6 +2,6 @@
     shouldDeps : [
         'inherit',
         'events',
-        'next-tick'
+        'vow'
     ]
 })

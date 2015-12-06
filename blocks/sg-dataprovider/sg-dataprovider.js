@@ -2,39 +2,33 @@
 
 modules.define(
     'sg-dataprovider',
-    ['inherit', 'events', 'next-tick'],
-    function(provide, inherit, events, nextTick) {
+    ['inherit', 'events', 'vow'],
+    function(provide, inherit, events, vow) {
 
 provide(/** @exports */ inherit(events.Emitter, {
-    __constructor : function() {
-        this.__base.apply(this, arguments);
-        this._onGotData = this._onGotData.bind(this);
-    },
-
     /**
      * @param {Object} params
-     * @returns {Object} this
+     * @returns {vow.Promise}
      */
     get : function(params) {
-        // TODO: return Promise
-        this._getData(params, this._onGotData);
-        return this;
+        return vow.fulfill(this._getData(params)).always(this._onGotData, this);
     },
 
     /**
      * @param {Object} params
-     * @param {Function} callback
+     * @returns {vow.Promise}
      * @abstract
      */
-    _getData : function(params, callback) {
-        callback(new Error('not implemented'));
+    _getData : function(params) {
+        return vow.reject(new Error('not implemented'));
     },
 
-    _onGotData : function(err, data) {
-        var _this = this;
-        nextTick(function() {
-            err ? _this.emit('error', err) : _this.emit('items', { items : data });
-        })
+    _onGotData : function(promise) {
+        var res = promise.valueOf();
+        promise.isRejected()?
+            this.emit('error', res) :
+            this.emit('data', { result : res });
+        return promise;
     }
 }));
 
