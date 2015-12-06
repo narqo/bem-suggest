@@ -9,6 +9,12 @@ provide(BemDom.decl(this.name, {
             'true' : function() {
                 return this._isMenuEmpty !== true;
             }
+        },
+
+        'focused' : {
+            '' : function() {
+                return !this._needRefocusControl;
+            }
         }
     },
 
@@ -22,8 +28,12 @@ provide(BemDom.decl(this.name, {
                     .setAnchor(this._input)
                     .on({ modName : 'visible', modVal : '' }, this._onPopupHide, this);
 
+                this._menu = this._popup.findBlockInside(Datalist.getName())
+                    .on('item-click', this._onMenuItemClick, this);
+
                 this.hasMod('focused') && this._focus();
 
+                this._needRefocusControl = false;
                 this._isMenuEmpty = null;
                 this._hoveredItem = null;
             }
@@ -35,8 +45,9 @@ provide(BemDom.decl(this.name, {
             },
 
             '' : function() {
-                this.getDatalist().un('items', this._onMenuGotItems, this);
+                this._menu.un('items', this._onMenuGotItems, this);
                 this
+                    .unbindFrom(this._popup.domElem, 'pointerpress', this._onPopupPointerPress)
                     .unbindFromDoc('keydown', this._onKeyDown)
                     .unbindFromDoc('keypress', this._onKeyPress)
                     .delMod('opened')
@@ -47,25 +58,18 @@ provide(BemDom.decl(this.name, {
 
         'opened' : {
             '*' : function(_, modVal) {
-                this.getDatalist().setMod('focused', modVal);
+                this._menu.setMod('focused', modVal);
             },
 
             'true' : function() {
                 this._popup.setMod('visible');
-                this.getDatalist()
-                    .on({
-                        'item-hover' : this._onMenuItemHover,
-                        'item-click' : this._onMenuItemClick
-                    }, this);
+                this._menu.on('item-hover', this._onMenuItemHover, this);
             },
 
             '' : function() {
                 this._popup.delMod('visible');
-                this.getDatalist()
-                    .on({
-                        'item-hover' : this._onMenuItemHover,
-                        'item-click' : this._onMenuItemClick
-                    }, this);
+                this._menu.un('item-hover', this._onMenuItemHover, this);
+
                 this._isMenuEmpty = null;
                 this._hoveredItem = null;
             }
@@ -73,7 +77,7 @@ provide(BemDom.decl(this.name, {
     },
 
     getDatalist : function() {
-        return this._menu || (this._menu = this._popup.findBlockInside(Datalist.getName()));
+        return this._menu;
     },
 
     getControl : function() {
@@ -90,18 +94,25 @@ provide(BemDom.decl(this.name, {
         this
             .bindToDoc('keydown', this._onKeyDown)
             .bindToDoc('keypress', this._onKeyPress)
+            .bindTo(this._popup.domElem, 'pointerpress', this._onPopupPointerPress)
             ._input
                 .setMod('focused');
-        this.getDatalist().on('items', this._onMenuGotItems, this);
+        this._menu.on('items', this._onMenuGotItems, this);
+    },
+
+    _refocusControl : function() {
+        this._needRefocusControl = false;
+        this._input.setMod('focused');
+        this.unbindFromDoc('pointerrelease', this._refocusControl);
     },
 
     _hoverNextMenuItem : function(dir) {
-        this.getDatalist().hoverNextItem(dir);
+        this._menu.hoverNextItem(dir);
     },
 
     _updateMenuHeight : function() {
         var drawingParams = this._popup.calcPossibleDrawingParams(),
-            menuDomElem = this.getDatalist().domElem,
+            menuDomElem = this._menu.domElem,
             menuWidth = menuDomElem.outerWidth(),
             bestHeight = 0;
 
@@ -144,9 +155,15 @@ provide(BemDom.decl(this.name, {
         this.delMod('opened');
     },
 
+    _onPopupPointerPress : function() {
+        this._needRefocusControl = true;
+        this.unbindFrom(this._popup.domElem, 'pointerpress', this._onPopupPointerPress);
+        this.bindToDoc('pointerrelease', this._refocusControl);
+    },
+
     _onMenuGotItems : function(e, data) {
         this._hoveredItem = null;
-        if(this._isMenuEmpty = !data.items.length) {
+        if(this._isMenuEmpty = !data.result.length) {
             this.delMod('opened')
         } else {
             this
@@ -167,7 +184,7 @@ provide(BemDom.decl(this.name, {
 
     _onInputChange : function(e) {
         if(this.hasMod('focused')) {
-            this.getDatalist().requestData({ val : e.target.getVal() });
+            this._menu.requestData({ val : e.target.getVal() });
         }
     },
 

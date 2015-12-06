@@ -1,4 +1,7 @@
 ({
+    mustDeps : {
+        block : 'jquery', elems : 'event', mods : { type : 'pointer' }
+    },
     shouldDeps : [
         { elems : ['input', 'datalist'] },
         {
