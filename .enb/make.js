@@ -8,7 +8,9 @@ var fs = require('fs'),
     fileProvider = require('enb/techs/file-provider'),
     stylus = require('enb-stylus/techs/stylus'),
     bemhtml = require('enb-bemxjst/techs/bemhtml'),
+    bh = require('enb-bh/techs/bh-commonjs'),
     bemjsonToHtml = require('enb-bemxjst/techs/bemjson-to-html'),
+    //bemjsonToHtml = require('enb-bh/techs/bemjson-to-html'),
     browserJs = require('enb-js/techs/browser-js'),
     borschik = require('enb-borschik/techs/borschik');
 
@@ -29,6 +31,9 @@ function createTestsNodes(config) {
             [techs.files],
 
             [bemhtml, { devMode : BEMHTML_DEV_MODE }],
+            [bh, {
+                bhOptions : { jsAttrName : 'data-bem', jsAttrScheme : 'json' }
+            }],
             [bemjsonToHtml],
 
             // FIXME: generated sourcemaps work incorrectly – generated paths aren't served by enb server

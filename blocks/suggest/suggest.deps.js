@@ -4,7 +4,7 @@
         { block : 'jquery', elems : 'event', mods : { type : 'pointer' } }
     ],
     shouldDeps : [
-        { elems : ['input', 'datalist'] },
+        { elems : ['control', 'datalist'] },
         {
             block : 'popup',
             mods : {

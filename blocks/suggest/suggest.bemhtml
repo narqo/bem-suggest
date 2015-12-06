@@ -13,7 +13,7 @@ block('suggest')(
         elemMods['has-dataprovider'] = null;
 
         return [
-            { elem : 'input', elemMods : elemMods },
+            { elem : 'control', elemMods : elemMods },
             {
                 block : 'popup',
                 mods : {

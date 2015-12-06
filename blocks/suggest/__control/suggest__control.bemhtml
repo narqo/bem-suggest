@@ -1,4 +1,4 @@
-block('suggest').elem('input')(
+block('suggest').elem('control')(
     def()(function() {
         return applyCtx({
             block : 'input',
