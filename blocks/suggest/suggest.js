@@ -76,18 +76,27 @@ provide(BemDom.decl(this.name, {
         }
     },
 
-    getDatalist : function() {
-        return this._menu;
+    getName : function() {
+        return this._input.getName();
     },
 
-    getControl : function() {
-        return this._input;
+    getVal : function() {
+        return this._input.getVal();
+    },
+
+    setVal : function(val, data) {
+        this._input.setVal(val, data);
+        return this;
     },
 
     getDefaultParams : function() {
         return {
             optionsMaxHeight: Infinity
         };
+    },
+
+    getDatalist : function() {
+        return this._menu;
     },
 
     _focus : function() {
@@ -146,7 +155,7 @@ provide(BemDom.decl(this.name, {
     _onKeyPress : function(e) {
         if (e.keyCode === keyCodes.ENTER) {
             if(this.hasMod('opened') && this._hoveredItem) {
-                this._input.setVal(this._hoveredItem.getVal());
+                this.setVal(this._hoveredItem.getVal(), { source : 'datalist' });
             }
         }
     },
@@ -175,7 +184,7 @@ provide(BemDom.decl(this.name, {
     _onMenuItemClick : function(e, data) {
         this
             .setMod('focused')
-            ._input.setVal(data.item.getVal());
+            .setVal(data.item.getVal(), { source : 'datalist' });
     },
 
     _onMenuItemHover : function(e, data) {
@@ -186,6 +195,7 @@ provide(BemDom.decl(this.name, {
         if(this.hasMod('focused')) {
             this._menu.requestData({ val : e.target.getVal() });
         }
+        this.emit('change');
     },
 
     _onInputFocusChange : function(e, data) {
