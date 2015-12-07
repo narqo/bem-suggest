@@ -4,6 +4,7 @@ block('suggest').elem('control')(
             block : 'input',
             mods : this.elemMods,
             mix : { block : this.block, elem : 'control' },
+            name : this._suggest.name,
             val : this._suggest.val,
             placeholder : this._suggest.placeholder
         });

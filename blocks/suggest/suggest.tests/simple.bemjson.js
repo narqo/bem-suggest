@@ -15,6 +15,7 @@
                 size : 'l',
                 'has-dataprovider' : 'timezone'
             },
+            name : 'timezone',
             dataprovider : {
                 data : [
                     'Africa/Abidjan',
