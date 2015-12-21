@@ -15,7 +15,7 @@ provide(Suggest.decl({ modName : 'has-dataprovider' }, {
      * @protected
      */
     _createDataProvider : function() {
-        throw new Error('not implementer');
+        throw new Error('not implemented');
     }
 }));
 
