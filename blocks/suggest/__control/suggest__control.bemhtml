@@ -1,6 +1,6 @@
 block('suggest').elem('control')(
-    def()(function() {
-        return applyCtx({
+    replace()(function() {
+        return {
             block : 'input',
             mods : this.elemMods,
             mix : { block : this.block, elem : 'control' },
@@ -8,6 +8,6 @@ block('suggest').elem('control')(
             name : this._suggest.name,
             val : this._suggest.val,
             placeholder : this._suggest.placeholder
-        });
+        };
     })
 )

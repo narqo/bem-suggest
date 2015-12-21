@@ -1,8 +1,8 @@
 block('suggest').elem('datalist')(
-    def()(function() {
-        return applyCtx({
+    replace()(function() {
+        return {
             block : 'sg-datalist',
             mods : this.elemMods
-        });
+        };
     })
 )

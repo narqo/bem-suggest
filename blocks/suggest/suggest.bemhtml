@@ -1,5 +1,5 @@
 block('suggest')(
-    def().match(function() { return !this._suggest })(function() {
+    def().match(function() { return !this._suggest; })(function() {
         return applyNext({ _suggest : this.ctx });
     }),
 
