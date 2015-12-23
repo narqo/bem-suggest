@@ -1,6 +1,6 @@
 block('sg-datalist')(
-    def()(function() {
-        return applyCtx({
+    replace()(function() {
+        return {
             block : 'menu',
             mods : {
                 theme : this.mods.theme,
@@ -8,7 +8,7 @@ block('sg-datalist')(
                 disabled : this.mods.disabled
             },
             mix : { block : this.block, js : apply('js') }
-        });
+        };
     }),
     js()(function() {
         return this.ctx.js || true;
