@@ -17,7 +17,7 @@ bem-suggest
 › cd bem-suggest
 › npm install
 › bower install
-› enb make server --port 3001
+› enb server --port 3001
 ~~~
 
 Open `http://localhost:3001/tests/suggest/simple/simple.html` in browser.
