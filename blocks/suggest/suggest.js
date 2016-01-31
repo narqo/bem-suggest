@@ -3,6 +3,8 @@ modules.define(
     ['i-bem__dom', 'keyboard__codes', 'sg-datalist', 'popup', 'input'],
     function(provide, BemDom, keyCodes, Datalist, Popup, Input) {
 
+var CHANGE_SOURCE_DATALIST = 'datalist';
+
 provide(BemDom.decl(this.name, {
     beforeSetMod : {
         'opened' : {
@@ -34,6 +36,7 @@ provide(BemDom.decl(this.name, {
                 this.hasMod('focused') && this._focus();
 
                 this._needRefocusControl = false;
+                this._preventRequestData = false;
                 this._isMenuEmpty = null;
                 this._hoveredItem = null;
             }
@@ -85,7 +88,12 @@ provide(BemDom.decl(this.name, {
     },
 
     setVal : function(val, data) {
+        this._preventRequestData = data && data.source === CHANGE_SOURCE_DATALIST;
         this._input.setVal(val, data);
+        if(this._preventRequestData) {
+            this.delMod('opened');
+            this._preventRequestData = false;
+        }
         return this;
     },
 
@@ -97,6 +105,12 @@ provide(BemDom.decl(this.name, {
 
     getDatalist : function() {
         return this._menu;
+    },
+
+    _requestData : function(val) {
+        if(!this._preventRequestData) {
+            this._menu.requestData({ val : val });
+        }
     },
 
     _focus : function() {
@@ -147,7 +161,7 @@ provide(BemDom.decl(this.name, {
         } else {
             if(isVertArrowKey && !e.shiftKey) {
                 e.preventDefault();
-                this.setMod('opened');
+                this._requestData(this.getVal());
             }
         }
     },
@@ -155,7 +169,7 @@ provide(BemDom.decl(this.name, {
     _onKeyPress : function(e) {
         if (e.keyCode === keyCodes.ENTER) {
             if(this.hasMod('opened') && this._hoveredItem) {
-                this.setVal(this._hoveredItem.getVal(), { source : 'datalist' });
+                this.setVal(this._hoveredItem.getVal(), { source : CHANGE_SOURCE_DATALIST });
             }
         }
     },
@@ -184,18 +198,18 @@ provide(BemDom.decl(this.name, {
     _onMenuItemClick : function(e, data) {
         this
             .setMod('focused')
-            .setVal(data.item.getVal(), { source : 'datalist' });
+            .setVal(data.item.getVal(), { source : CHANGE_SOURCE_DATALIST });
     },
 
     _onMenuItemHover : function(e, data) {
         this._hoveredItem = data.item;
     },
 
-    _onInputChange : function(e) {
+    _onInputChange : function(e, data) {
         if(this.hasMod('focused')) {
-            this._menu.requestData({ val : e.target.getVal() });
+            this._requestData(e.target.getVal());
         }
-        this.emit('change');
+        this.emit('change', data);
     },
 
     _onInputFocusChange : function(e, data) {
