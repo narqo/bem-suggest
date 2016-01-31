@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run tmpl-specs",
+    "tmpl-specs": "enb make tmpl-specs"
   },
   "author": "Vladimir Varankin <nek.narqo@gmail.com> (http://github.com/narqo)",
   "license": "WTFPL",
@@ -11,10 +12,12 @@
     "bower": "^1.7.7",
     "enb": "^1.1.2",
     "enb-bem-techs": "^2.2.1",
+    "enb-bem-tmpl-specs": "^0.16.1",
     "enb-bemxjst": "^4.1.0",
     "enb-bh": "^1.1.0",
     "enb-borschik": "^2.3.0",
     "enb-js": "^1.1.0",
+    "enb-magic-factory": "^0.5.0",
     "enb-stylus": "^2.2.0",
     "glob": "^6.0.4",
     "mkdirp": "^0.5.1"

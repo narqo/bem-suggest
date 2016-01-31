@@ -2,6 +2,7 @@
 /libs
 /node_modules
 /tests
+/tmpl-specs
 /specs/*/*
 !/specs/*/*.bemdecl.js
 !/specs/*/*.html

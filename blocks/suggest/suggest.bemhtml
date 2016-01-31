@@ -1,5 +1,5 @@
 block('suggest')(
-    def().match(function() { return !this._suggest; })(function() {
+    def()(function() {
         return applyNext({ _suggest : this.ctx });
     }),
 
@@ -21,6 +21,8 @@ block('suggest')(
                     target : 'anchor',
                     autoclosable : true
                 },
+                // ugly hack untill https://github.com/bem/bem-components/issues/1745
+                attrs: { 'aria-hidden': 'true' },
                 directions : ['bottom-left', 'bottom-right', 'top-left', 'top-right'],
                 content : {
                     block : this.block,

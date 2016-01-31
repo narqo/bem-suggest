@@ -8,7 +8,7 @@ module.exports = function(bh) {
                 size : mods.size,
                 disabled : mods.disabled
             },
-            mix : { block : json.block, js : ctx.js() }
+            mix : { block : json.block, js : ctx.js() || true }
         };
     });
 };
