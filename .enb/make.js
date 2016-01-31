@@ -11,11 +11,9 @@ var fs = require('fs'),
     bh = require('enb-bh/techs/bh-commonjs'),
     bemjsonToHtml = require('enb-bemxjst/techs/bemjson-to-html'),
     //bemjsonToHtml = require('enb-bh/techs/bemjson-to-html'),
-    browserJs = require('enb-js/techs/browser-js'),
-    borschik = require('enb-borschik/techs/borschik');
+    browserJs = require('enb-js/techs/browser-js');
 
-const TESTS_PATH_RE = /(\w[a-z0-2_-]+)\.(tests|examples)\/(\w+)\.bemjson\.js$/,
-    BEMHTML_DEV_MODE = process.env.BEMHTML_ENV === 'development';
+const TESTS_PATH_RE = /(\w[a-z0-2_-]+)\.(tests|examples)\/(\w+)\.bemjson\.js$/;
 
 module.exports = function(config) {
     createTestsNodes(config);
@@ -30,7 +28,7 @@ function createTestsNodes(config) {
             [techs.deps],
             [techs.files],
 
-            [bemhtml, { devMode : BEMHTML_DEV_MODE }],
+            [bemhtml, { sourceSuffixes : ['bemhtml', 'bemhtml.js'] }],
             [bh, {
                 bhOptions : { jsAttrName : 'data-bem', jsAttrScheme : 'json' }
             }],
@@ -56,7 +54,7 @@ function createTestsNodes(config) {
             [bemhtml, {
                 target : '?.browser.bemhtml.js',
                 filesTarget : '?.bemhtml.files',
-                devMode : BEMHTML_DEV_MODE
+                sourceSuffixes : ['bemhtml', 'bemhtml.js']
             }],
 
             [fileMerge, {
