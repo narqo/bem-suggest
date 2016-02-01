@@ -3,7 +3,7 @@
     mods : {
         theme : 'islands',
         size : 'l',
-        'has-dataprovider' : 'timezone'
+        'has-dataprovider' : true
     },
     name : 'timezone',
     dataprovider : {
