@@ -1,0 +1,17 @@
+{
+  "plugins": ["jscs-bem"],
+  "preset": "bem",
+  "excludeFiles": [
+    ".enb/tmp/**",
+    ".git/**",
+    "*.docs/**",
+    "*.examples/**",
+    "*.specs/**",
+    "tests/**",
+    "tmpl-specs/**",
+    "**/*.i18n/**",
+    "libs/**",
+    "node_modules/**"
+  ],
+  "fileExtensions": [".js", ".bemtree", ".bemhtml"]
+}
