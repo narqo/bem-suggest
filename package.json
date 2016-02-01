@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
+    "lint": "jscs .",
+    "tmpl-specs": "enb make tmpl-specs",
     "test": "npm run tmpl-specs",
-    "tmpl-specs": "enb make tmpl-specs"
+    "pretest": "npm run lint"
   },
   "author": "Vladimir Varankin <nek.narqo@gmail.com> (http://github.com/narqo)",
   "license": "WTFPL",
@@ -20,6 +22,8 @@
     "enb-magic-factory": "^0.5.0",
     "enb-stylus": "^2.2.0",
     "glob": "^6.0.4",
+    "jscs": "^2.9.0",
+    "jscs-bem": "^0.2.0",
     "mkdirp": "^0.5.1"
   },
   "private": true

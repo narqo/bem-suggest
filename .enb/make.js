@@ -10,12 +10,12 @@ var fs = require('fs'),
     bemhtml = require('enb-bemxjst/techs/bemhtml'),
     bh = require('enb-bh/techs/bh-commonjs'),
     bhBundle = require('enb-bh/techs/bh-bundle'),
-    bemjsonToHtml = require('enb-bemxjst/techs/bemjson-to-html'),
-    //bemjsonToHtml = require('enb-bh/techs/bemjson-to-html'),
+    bemjsonToHtmlBemhtml = require('enb-bemxjst/techs/bemjson-to-html'),
+    bemjsonToHtmlBh = require('enb-bh/techs/bemjson-to-html'),
     browserJs = require('enb-js/techs/browser-js');
 
 const TESTS_PATH_RE = /(\w[a-z0-2_-]+)\.(tests|examples)\/(\w+)\.bemjson\.js$/,
-    TMPL_ENGINE = process.env.TMPL_ENGINE || 'bemhtml';
+    TMPL_ENGINE_BEMHTML = (process.env.TMPL_ENGINE || 'bemhtml') === 'bemhtml';
 
 module.exports = function(config) {
     createTestsNodes(config);
@@ -36,10 +36,10 @@ function createTestsNodes(config) {
                 bhOptions : { jsAttrName : 'data-bem', jsAttrScheme : 'json' },
                 mimic : 'BEMHTML'
             }],
-            [bemjsonToHtml],
+            [TMPL_ENGINE_BEMHTML? bemjsonToHtmlBemhtml : bemjsonToHtmlBh],
 
             // FIXME: generated sourcemaps work incorrectly – generated paths aren't served by enb server
-            [browserJs, { includeYM : true/*, sourcemap : true */}],
+            [browserJs, { includeYM : true }],
 
             [techs.depsByTechToBemdecl, {
                 target : '?.tmpl.bemdecl.js',
@@ -55,19 +55,21 @@ function createTestsNodes(config) {
                 filesTarget : '?.tmpl.files',
                 dirsTarget : '?.tmpl.dirs'
             }],
-            TMPL_ENGINE === 'bemhtml' ? [bemhtml, {
-                target : '?.browser.tmpl.js',
-                filesTarget : '?.tmpl.files',
-                sourceSuffixes : ['bemhtml', 'bemhtml.js']
-            }] : [bhBundle, {
-                target : '?.browser.tmpl.js',
-                filesTarget : '?.tmpl.files',
-                bhOptions : {
-                    jsAttrName : 'data-bem',
-                    jsAttrScheme : 'json'
-                },
-                mimic : 'BEMHTML'
-            }],
+            TMPL_ENGINE_BEMHTML?
+                [bemhtml, {
+                    target : '?.browser.tmpl.js',
+                    filesTarget : '?.tmpl.files',
+                    sourceSuffixes : ['bemhtml', 'bemhtml.js']
+                }] :
+                [bhBundle, {
+                    target : '?.browser.tmpl.js',
+                    filesTarget : '?.tmpl.files',
+                    bhOptions : {
+                        jsAttrName : 'data-bem',
+                        jsAttrScheme : 'json'
+                    },
+                    mimic : 'BEMHTML'
+                }],
 
             [fileMerge, {
                 target : '?.js',
@@ -96,7 +98,7 @@ function createTmplTestsNodes(config) {
             bh : {
                 tech : 'enb-bh/techs/bh-bundle',
                 options : {
-                    bhOptions: {
+                    bhOptions : {
                         jsAttrName : 'data-bem',
                         jsAttrScheme : 'json'
                     },
@@ -118,7 +120,7 @@ function bemjsonNodeFactory(config) {
         var nodeName, nodePath;
 
         src.replace(TESTS_PATH_RE, function(_, bemItem, type, name) {
-            nodeName = [ type, bemItem, name ].join(path.sep);
+            nodeName = [type, bemItem, name].join(path.sep);
             nodePath = config.resolvePath(nodeName);
             fs.existsSync(nodePath) || mkdirp.sync(nodePath);
         });

@@ -99,7 +99,7 @@ provide(BemDom.decl(this.name, {
 
     getDefaultParams : function() {
         return {
-            optionsMaxHeight: Infinity
+            optionsMaxHeight : Infinity
         };
     },
 
@@ -154,7 +154,7 @@ provide(BemDom.decl(this.name, {
             if(keyCode === keyCodes.ESC) {
                 e.preventDefault();
                 this.delMod('opened');
-            } else if (isVertArrowKey && !e.shiftKey) {
+            } else if(isVertArrowKey && !e.shiftKey) {
                 e.preventDefault();
                 this._hoverNextMenuItem(keyCode === keyCodes.UP? -1 : 1);
             }
@@ -167,7 +167,7 @@ provide(BemDom.decl(this.name, {
     },
 
     _onKeyPress : function(e) {
-        if (e.keyCode === keyCodes.ENTER) {
+        if(e.keyCode === keyCodes.ENTER) {
             if(this.hasMod('opened') && this._hoveredItem) {
                 this.setVal(this._hoveredItem.getVal(), { source : CHANGE_SOURCE_DATALIST });
             }

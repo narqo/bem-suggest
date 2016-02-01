@@ -4,8 +4,8 @@ provide(inherit({
     __constructor : function(data) {
         this._data = data.map(function(item) {
             return {
-                text: item,
-                val: item
+                text : item,
+                val : item
             };
         });
     },

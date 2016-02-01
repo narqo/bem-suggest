@@ -5,7 +5,7 @@ module.exports = function(bh) {
             block : 'input',
             mods : json.elemMods,
             mix : { block : json.block, elem : 'control' },
-            autocomplete: false,
+            autocomplete : false,
             name : suggest.name,
             val : suggest.val,
             placeholder : suggest.placeholder
