@@ -9,14 +9,17 @@ var fs = require('fs'),
     stylus = require('enb-stylus/techs/stylus'),
     bemhtml = require('enb-bemxjst/techs/bemhtml'),
     bh = require('enb-bh/techs/bh-commonjs'),
+    bhBundle = require('enb-bh/techs/bh-bundle'),
     bemjsonToHtml = require('enb-bemxjst/techs/bemjson-to-html'),
     //bemjsonToHtml = require('enb-bh/techs/bemjson-to-html'),
     browserJs = require('enb-js/techs/browser-js');
 
-const TESTS_PATH_RE = /(\w[a-z0-2_-]+)\.(tests|examples)\/(\w+)\.bemjson\.js$/;
+const TESTS_PATH_RE = /(\w[a-z0-2_-]+)\.(tests|examples)\/(\w+)\.bemjson\.js$/,
+    TMPL_ENGINE = process.env.TMPL_ENGINE || 'bemhtml';
 
 module.exports = function(config) {
     createTestsNodes(config);
+    createTmplTestsNodes(config);
 };
 
 function createTestsNodes(config) {
@@ -30,7 +33,8 @@ function createTestsNodes(config) {
 
             [bemhtml, { sourceSuffixes : ['bemhtml', 'bemhtml.js'] }],
             [bh, {
-                bhOptions : { jsAttrName : 'data-bem', jsAttrScheme : 'json' }
+                bhOptions : { jsAttrName : 'data-bem', jsAttrScheme : 'json' },
+                mimic : 'BEMHTML'
             }],
             [bemjsonToHtml],
 
@@ -38,34 +42,72 @@ function createTestsNodes(config) {
             [browserJs, { includeYM : true/*, sourcemap : true */}],
 
             [techs.depsByTechToBemdecl, {
-                target : '?.bemhtml.bemdecl.js',
+                target : '?.tmpl.bemdecl.js',
                 sourceTech : 'js',
                 destTech : 'bemhtml'
             }],
             [techs.deps, {
-                target : '?.bemhtml.deps.js',
-                bemdeclFile : '?.bemhtml.bemdecl.js'
+                target : '?.tmpl.deps.js',
+                bemdeclFile : '?.tmpl.bemdecl.js'
             }],
             [techs.files, {
-                depsFile : '?.bemhtml.deps.js',
-                filesTarget : '?.bemhtml.files',
-                dirsTarget : '?.bemhtml.dirs'
+                depsFile : '?.tmpl.deps.js',
+                filesTarget : '?.tmpl.files',
+                dirsTarget : '?.tmpl.dirs'
             }],
-            [bemhtml, {
-                target : '?.browser.bemhtml.js',
-                filesTarget : '?.bemhtml.files',
+            TMPL_ENGINE === 'bemhtml' ? [bemhtml, {
+                target : '?.browser.tmpl.js',
+                filesTarget : '?.tmpl.files',
                 sourceSuffixes : ['bemhtml', 'bemhtml.js']
+            }] : [bhBundle, {
+                target : '?.browser.tmpl.js',
+                filesTarget : '?.tmpl.files',
+                bhOptions : {
+                    jsAttrName : 'data-bem',
+                    jsAttrScheme : 'json'
+                },
+                mimic : 'BEMHTML'
             }],
 
             [fileMerge, {
                 target : '?.js',
-                sources : ['?.browser.js', '?.browser.bemhtml.js']
+                sources : ['?.browser.js', '?.browser.tmpl.js']
             }],
 
             [stylus]
         ]);
 
         nodeConfig.addTargets(['?.html', '?.css', '?.js']);
+    });
+}
+
+function createTmplTestsNodes(config) {
+    config.includeConfig('enb-bem-tmpl-specs');
+
+    var tmplSpecsConfigurator = config
+        .module('enb-bem-tmpl-specs')
+        .createConfigurator('tmpl-specs');
+
+    tmplSpecsConfigurator.configure({
+        destPath : 'tmpl-specs',
+        levels : [config.resolvePath('blocks')],
+        sourceLevels : getLevels(config),
+        engines : {
+            bh : {
+                tech : 'enb-bh/techs/bh-bundle',
+                options : {
+                    bhOptions: {
+                        jsAttrName : 'data-bem',
+                        jsAttrScheme : 'json'
+                    },
+                    mimic : 'BEMHTML'
+                }
+            },
+            bemhtml : {
+                tech : 'enb-bemxjst/techs/bemhtml',
+                options : { sourceSuffixes : ['bemhtml', 'bemhtml.js'] }
+            }
+        }
     });
 }
 
