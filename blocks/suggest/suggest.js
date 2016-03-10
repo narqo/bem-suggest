@@ -76,6 +76,11 @@ provide(BemDom.decl(this.name, {
                 this._isMenuEmpty = null;
                 this._hoveredItem = null;
             }
+        },
+
+        'disabled' : function(modName, modVal) {
+            this._input.setMod(modName, modVal);
+            this._menu.findBlockOn('menu').setMod(modName, modVal);
         }
     },
 
