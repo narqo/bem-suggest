@@ -4,8 +4,7 @@ block('sg-datalist')(
             block : 'menu',
             mods : {
                 theme : this.mods.theme,
-                size : this.mods.size,
-                disabled : this.mods.disabled
+                size : this.mods.size
             },
             mix : { block : this.block, js : apply('js') }
         });
