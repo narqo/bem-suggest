@@ -9,7 +9,7 @@ provide(BemDom.decl(this.name, {
     beforeSetMod : {
         'opened' : {
             'true' : function() {
-                return this._isMenuEmpty !== true;
+                return this._isMenuEmpty !== true && !this.hasMod('disabled');
             }
         },
 
@@ -30,8 +30,9 @@ provide(BemDom.decl(this.name, {
                     .setAnchor(this._input)
                     .on({ modName : 'visible', modVal : '' }, this._onPopupHide, this);
 
-                this._menu = this._popup.findBlockInside(Datalist.getName())
+                this._datalist = this._popup.findBlockInside(Datalist.getName())
                     .on('item-click', this._onMenuItemClick, this);
+                this._menu = this._datalist.findBlockOn('menu');
 
                 this.hasMod('focused') && this._focus();
 
@@ -48,7 +49,7 @@ provide(BemDom.decl(this.name, {
             },
 
             '' : function() {
-                this._menu.un('items', this._onMenuGotItems, this);
+                this._datalist.un('items', this._onMenuGotItems, this);
                 this
                     .unbindFrom(this._popup.domElem, 'pointerpress', this._onPopupPointerPress)
                     .unbindFromDoc('keydown', this._onKeyDown)
@@ -61,20 +62,31 @@ provide(BemDom.decl(this.name, {
 
         'opened' : {
             '*' : function(_, modVal) {
-                this._menu.setMod('focused', modVal);
+                this._datalist.setMod('focused', modVal);
             },
 
             'true' : function() {
                 this._popup.setMod('visible');
-                this._menu.on('item-hover', this._onMenuItemHover, this);
+                this._datalist.on('item-hover', this._onMenuItemHover, this);
             },
 
             '' : function() {
                 this._popup.delMod('visible');
-                this._menu.un('item-hover', this._onMenuItemHover, this);
+                this._datalist.un('item-hover', this._onMenuItemHover, this);
 
                 this._isMenuEmpty = null;
                 this._hoveredItem = null;
+            }
+        },
+
+        'disabled' : {
+            '*' : function(modName, modVal) {
+                this._input.setMod(modName, modVal);
+                this._menu.setMod(modName, modVal);
+            },
+
+            'true' : function() {
+                this._popup.delMod('visible');
             }
         }
     },
@@ -104,12 +116,12 @@ provide(BemDom.decl(this.name, {
     },
 
     getDatalist : function() {
-        return this._menu;
+        return this._datalist;
     },
 
     _requestData : function(val) {
         if(!this._preventRequestData) {
-            this._menu.requestData({ val : val });
+            this._datalist.requestData({ val : val });
         }
     },
 
@@ -120,7 +132,7 @@ provide(BemDom.decl(this.name, {
             .bindTo(this._popup.domElem, 'pointerpress', this._onPopupPointerPress)
             ._input
                 .setMod('focused');
-        this._menu.on('items', this._onMenuGotItems, this);
+        this._datalist.on('items', this._onMenuGotItems, this);
     },
 
     _refocusControl : function() {
@@ -130,12 +142,12 @@ provide(BemDom.decl(this.name, {
     },
 
     _hoverNextMenuItem : function(dir) {
-        this._menu.hoverNextItem(dir);
+        this._datalist.hoverNextItem(dir);
     },
 
     _updateMenuHeight : function() {
         var drawingParams = this._popup.calcPossibleDrawingParams(),
-            menuDomElem = this._menu.domElem,
+            menuDomElem = this._datalist.domElem,
             menuWidth = menuDomElem.outerWidth(),
             bestHeight = 0;
 
