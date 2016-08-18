@@ -88,7 +88,7 @@ provide(BemDom.declBlock(this.name, {
                 block : 'menu',
                 elem : 'item',
                 mix : 'i-bem',
-                mods : {
+                elemMods : {
                     theme : menu.getMod('theme'),
                     disabled : menu.getMod('disabled')
                 },
