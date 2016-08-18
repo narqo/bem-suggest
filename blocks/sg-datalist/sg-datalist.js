@@ -3,16 +3,14 @@ modules.define(
     ['i-bem-dom', 'menu', 'BEMHTML'],
     function(provide, BemDom, Menu, BEMHTML) {
 
-provide(BemDom.decl(this.name, {
+provide(BemDom.declBlock(this.name, {
     onSetMod : {
         'js' : {
             'inited' : function() {
+                var menu = this._menu = this.findMixedBlock(Menu);
                 this._dataprovider = null;
-                this._events(this._menu = this.findMixedBlock(Menu))
-                    .on({
-                        'item-hover' : this._onMenuItemHover,
-                        'item-click' : this._onMenuItemClick
-                    }, this);
+                this._events(menu).on('item-hover', this._onMenuItemHover, this);
+                this._events(menu).on('item-click', this._onMenuItemClick, this);
             }
         },
 
@@ -50,7 +48,7 @@ provide(BemDom.decl(this.name, {
 
     // TODO: move to menu
     hoverNextItem : function(dir) {
-        var items = this._menu.getItems(),
+        var items = this._menu.getItems().toArray(),
             len = items.length;
 
         if(!len) return;
@@ -84,13 +82,15 @@ provide(BemDom.decl(this.name, {
      * @protected
      */
     _buildItemsBemjson : function(items) {
-        var mods = this._menu.getMods();
+        var menu = this._menu;
         return items.map(function(item) {
             return {
-                block : 'menu-item',
+                block : 'menu',
+                elem : 'item',
+                mix : 'i-bem',
                 mods : {
-                    theme : mods.theme,
-                    disabled : mods.disabled
+                    theme : menu.getMod('theme'),
+                    disabled : menu.getMod('disabled')
                 },
                 val : item.val,
                 content : item.text

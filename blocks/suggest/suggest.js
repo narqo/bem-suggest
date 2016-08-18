@@ -23,12 +23,15 @@ provide(BemDom.declBlock(this.name, {
     onSetMod : {
         'js' : {
             'inited' : function() {
-                this._input = this.findChildBlock(Input)
-                    .on('change', this._onInputChange, this);
+                var input = this._input = this.findChildBlock(Input);
+                this._events(input).on('change', this._onInputChange, this);
 
                 var popup = this._popup = this.findChildBlock(Popup);
-                popup.setAnchor(this._input);
-                this._events(popup).on({ modName : 'visible', modVal : false }, this._onPopupHide, this);
+                popup.setAnchor(input);
+                this._events(popup).on({
+                    modName : 'visible',
+                    modVal : false
+                }, this._onPopupHide, this);
 
                 var datalist = this._datalist = this._popup.findChildBlock(Datalist);
                 this._events(datalist).on('item-click', this._onMenuItemClick, this);
@@ -50,7 +53,7 @@ provide(BemDom.declBlock(this.name, {
 
             '' : function() {
                 this._events(this._datalist).un('items', this._onMenuGotItems, this);
-                this._domEvents(this._popup.domElem).un('pointerpress', this._onPopupPointerPress);
+                this._domEvents(this._popup).un('pointerpress', this._onPopupPointerPress);
                 this._domEvents(document).un('keydown', this._onKeyDown);
                 this._domEvents(document).un('keypress', this._onKeyPress);
                 this.delMod('opened');
@@ -126,7 +129,7 @@ provide(BemDom.declBlock(this.name, {
     _focus : function() {
         this._domEvents(document).on('keydown', this._onKeyDown);
         this._domEvents(document).on('keypress', this._onKeyPress);
-        this._domEvents(this._popup.domElem).on('pointerpress', this._onPopupPointerPress);
+        this._domEvents(this._popup).on('pointerpress', this._onPopupPointerPress);
         this._input.setMod('focused');
         this._events(this._datalist).on('items', this._onMenuGotItems, this);
     },
@@ -166,11 +169,9 @@ provide(BemDom.declBlock(this.name, {
                 e.preventDefault();
                 this._hoverNextMenuItem(keyCode === keyCodes.UP? -1 : 1);
             }
-        } else {
-            if(isVertArrowKey && !e.shiftKey) {
-                e.preventDefault();
-                this._requestData(this.getVal());
-            }
+        } else if(isVertArrowKey && !e.shiftKey) {
+            e.preventDefault();
+            this._requestData(this.getVal());
         }
     },
 
@@ -188,7 +189,7 @@ provide(BemDom.declBlock(this.name, {
 
     _onPopupPointerPress : function() {
         this._needRefocusControl = true;
-        this._domEvents(this._popup.domElem).un('pointerpress', this._onPopupPointerPress);
+        this._domEvents(this._popup).un('pointerpress', this._onPopupPointerPress);
         this._domEvents(document).on('pointerrelease', this._refocusControl);
     },
 
