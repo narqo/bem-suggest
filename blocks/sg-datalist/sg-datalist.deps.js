@@ -1,5 +1,5 @@
 [{
-    mustDeps : { block : 'i-bem', elems : 'dom' },
+    mustDeps : { block : 'i-bem-dom' },
     shouldDeps : [
         'sg-dataprovider',
         'menu'
@@ -7,5 +7,5 @@
 },
 {
     tech : 'js',
-    mustDeps : { block : 'menu-item', tech : 'bemhtml' }
+    mustDeps : { block : 'menu', tech : 'bemhtml' }
 }]

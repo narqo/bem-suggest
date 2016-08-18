@@ -1,11 +1,11 @@
 modules.define(
     'suggest',
-    ['i-bem__dom', 'keyboard__codes', 'sg-datalist', 'popup', 'input'],
-    function(provide, BemDom, keyCodes, Datalist, Popup, Input) {
+    ['i-bem-dom', 'keyboard__codes', 'sg-datalist', 'popup', 'input', 'menu'],
+    function(provide, BemDom, keyCodes, Datalist, Popup, Input, Menu) {
 
 var CHANGE_SOURCE_DATALIST = 'datalist';
 
-provide(BemDom.decl(this.name, {
+provide(BemDom.declBlock(this.name, {
     beforeSetMod : {
         'opened' : {
             'true' : function() {
@@ -23,16 +23,16 @@ provide(BemDom.decl(this.name, {
     onSetMod : {
         'js' : {
             'inited' : function() {
-                this._input = this.findBlockInside(Input.getName())
+                this._input = this.findChildBlock(Input)
                     .on('change', this._onInputChange, this);
 
-                this._popup = this.findBlockInside(Popup.getName())
-                    .setAnchor(this._input)
-                    .on({ modName : 'visible', modVal : '' }, this._onPopupHide, this);
+                var popup = this._popup = this.findChildBlock(Popup);
+                popup.setAnchor(this._input);
+                this._events(popup).on({ modName : 'visible', modVal : false }, this._onPopupHide, this);
 
-                this._datalist = this._popup.findBlockInside(Datalist.getName())
-                    .on('item-click', this._onMenuItemClick, this);
-                this._menu = this._datalist.findBlockOn('menu');
+                var datalist = this._datalist = this._popup.findChildBlock(Datalist);
+                this._events(datalist).on('item-click', this._onMenuItemClick, this);
+                this._menu = datalist.findMixedBlock(Menu);
 
                 this.hasMod('focused') && this._focus();
 
@@ -49,14 +49,12 @@ provide(BemDom.decl(this.name, {
             },
 
             '' : function() {
-                this._datalist.un('items', this._onMenuGotItems, this);
-                this
-                    .unbindFrom(this._popup.domElem, 'pointerpress', this._onPopupPointerPress)
-                    .unbindFromDoc('keydown', this._onKeyDown)
-                    .unbindFromDoc('keypress', this._onKeyPress)
-                    .delMod('opened')
-                    ._input
-                        .delMod('focused');
+                this._events(this._datalist).un('items', this._onMenuGotItems, this);
+                this._domEvents(this._popup.domElem).un('pointerpress', this._onPopupPointerPress);
+                this._domEvents(document).un('keydown', this._onKeyDown);
+                this._domEvents(document).un('keypress', this._onKeyPress);
+                this.delMod('opened');
+                this._input.delMod('focused');
             }
         },
 
@@ -67,12 +65,12 @@ provide(BemDom.decl(this.name, {
 
             'true' : function() {
                 this._popup.setMod('visible');
-                this._datalist.on('item-hover', this._onMenuItemHover, this);
+                this._events(this._datalist).on('item-hover', this._onMenuItemHover, this);
             },
 
             '' : function() {
                 this._popup.delMod('visible');
-                this._datalist.un('item-hover', this._onMenuItemHover, this);
+                this._events(this._datalist).un('item-hover', this._onMenuItemHover, this);
 
                 this._isMenuEmpty = null;
                 this._hoveredItem = null;
@@ -126,19 +124,17 @@ provide(BemDom.decl(this.name, {
     },
 
     _focus : function() {
-        this
-            .bindToDoc('keydown', this._onKeyDown)
-            .bindToDoc('keypress', this._onKeyPress)
-            .bindTo(this._popup.domElem, 'pointerpress', this._onPopupPointerPress)
-            ._input
-                .setMod('focused');
-        this._datalist.on('items', this._onMenuGotItems, this);
+        this._domEvents(document).on('keydown', this._onKeyDown);
+        this._domEvents(document).on('keypress', this._onKeyPress);
+        this._domEvents(this._popup.domElem).on('pointerpress', this._onPopupPointerPress);
+        this._input.setMod('focused');
+        this._events(this._datalist).on('items', this._onMenuGotItems, this);
     },
 
     _refocusControl : function() {
         this._needRefocusControl = false;
         this._input.setMod('focused');
-        this.unbindFromDoc('pointerrelease', this._refocusControl);
+        this._domEvents(document).un('pointerrelease', this._refocusControl);
     },
 
     _hoverNextMenuItem : function(dir) {
@@ -192,14 +188,14 @@ provide(BemDom.decl(this.name, {
 
     _onPopupPointerPress : function() {
         this._needRefocusControl = true;
-        this.unbindFrom(this._popup.domElem, 'pointerpress', this._onPopupPointerPress);
-        this.bindToDoc('pointerrelease', this._refocusControl);
+        this._domEvents(this._popup.domElem).un('pointerpress', this._onPopupPointerPress);
+        this._domEvents(document).on('pointerrelease', this._refocusControl);
     },
 
     _onMenuGotItems : function(e, data) {
         this._hoveredItem = null;
         if(this._isMenuEmpty = !data.result.length) {
-            this.delMod('opened')
+            this.delMod('opened');
         } else {
             this
                 .setMod('opened')
@@ -221,16 +217,19 @@ provide(BemDom.decl(this.name, {
         if(this.hasMod('focused')) {
             this._requestData(e.target.getVal());
         }
-        this.emit('change', data);
+        this._emit('change', data);
     },
 
     _onInputFocusChange : function(e, data) {
         this.setMod('focused', data.modVal);
     }
 }, {
-    live : function() {
-        this.liveInitOnBlockInsideEvent({ modName : 'focused', modVal : '*' }, Input.getName(),
-            this.prototype._onInputFocusChange);
+    lazyInit : true,
+    onInit : function() {
+        this._events(Input).on({
+            modName : 'focused',
+            modVal : '*'
+        }, this.prototype._onInputFocusChange);
     }
 }));
 

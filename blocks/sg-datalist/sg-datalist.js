@@ -1,6 +1,6 @@
 modules.define(
     'sg-datalist',
-    ['i-bem__dom', 'menu', 'BEMHTML'],
+    ['i-bem-dom', 'menu', 'BEMHTML'],
     function(provide, BemDom, Menu, BEMHTML) {
 
 provide(BemDom.decl(this.name, {
@@ -8,7 +8,7 @@ provide(BemDom.decl(this.name, {
         'js' : {
             'inited' : function() {
                 this._dataprovider = null;
-                this._menu = this.findBlockOn(Menu.getName())
+                this._events(this._menu = this.findMixedBlock(Menu))
                     .on({
                         'item-hover' : this._onMenuItemHover,
                         'item-click' : this._onMenuItemClick
@@ -16,8 +16,8 @@ provide(BemDom.decl(this.name, {
             }
         },
 
-        'focused' : function(modNam, modVal) {
-            this._menu.setMod(modNam, modVal);
+        'focused' : function(modName, modVal) {
+            this._menu.setMod(modName, modVal);
         }
     },
 
@@ -103,25 +103,25 @@ provide(BemDom.decl(this.name, {
     },
 
     _onMenuItemHover : function(e, data) {
-        this.emit('item-hover', data);
+        this._emit('item-hover', data);
     },
 
     _onMenuItemClick : function(e, data) {
-        this.emit('item-click', data);
+        this._emit('item-click', data);
     },
 
     _onProviderGotData : function(e, data) {
         this
-            .emit('items', data)
+            ._emit('items', data)
             ._updateMenu(data.result);
     },
 
     _onProviderGotError : function(e, data) {
         // TODO: _onProviderGotError
-        this.emit('error', data);
+        this._emit('error', data);
     }
 }, {
-    live : true
+    lazyInit : true
 }));
 
 });
