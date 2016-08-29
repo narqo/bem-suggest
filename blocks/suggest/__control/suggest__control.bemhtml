@@ -7,6 +7,7 @@ block('suggest').elem('control')(
             autocomplete : false,
             name : this._suggest.name,
             val : this._suggest.val,
+            id : this._suggest.id,
             placeholder : this._suggest.placeholder
         };
     })

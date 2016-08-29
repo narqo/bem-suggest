@@ -8,6 +8,7 @@ module.exports = function(bh) {
             autocomplete : false,
             name : suggest.name,
             val : suggest.val,
+            id : suggest.id,
             placeholder : suggest.placeholder
         };
     });
