@@ -4,6 +4,7 @@
   "description": "",
   "scripts": {
     "deps": "bower i",
+    "server": "enb server",
     "lint": "jscs .",
     "tmpl-specs": "enb make tmpl-specs",
     "test": "npm run tmpl-specs",
