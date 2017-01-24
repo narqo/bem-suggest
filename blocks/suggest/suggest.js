@@ -194,7 +194,6 @@ provide(BemDom.decl(this.name, {
 
     _onPopupPointerPress : function() {
         this._needRefocusControl = true;
-        this.unbindFrom(this._popup.domElem, 'pointerpress', this._onPopupPointerPress);
         this.bindToDoc('pointerrelease', this._refocusControl);
     },
 
