@@ -111,9 +111,9 @@ provide(BemDom.decl(this.name, {
     },
 
     _onProviderGotData : function(e, data) {
-        this
-            .emit('items', data)
-            ._updateMenu(data.result);
+        this ._updateMenu(data.result);
+
+        this.emit('items', data);
     },
 
     _onProviderGotError : function(e, data) {
