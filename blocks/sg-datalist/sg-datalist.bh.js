@@ -5,8 +5,7 @@ module.exports = function(bh) {
             block : 'menu',
             mods : {
                 theme : mods.theme,
-                size : mods.size,
-                disabled : mods.disabled
+                size : mods.size
             },
             mix : { block : json.block, js : ctx.js() || true }
         };
