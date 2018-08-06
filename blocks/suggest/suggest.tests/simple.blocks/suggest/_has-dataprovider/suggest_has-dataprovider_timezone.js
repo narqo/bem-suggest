@@ -3,7 +3,7 @@ modules.define(
     ['timezone-provider'],
     function(provide, TzDataProvider, Suggest) {
 
-provide(Suggest.decl({ modName : 'has-dataprovider', modVal : 'timezone' }, {
+provide(Suggest.declMod({ modName : 'has-dataprovider', modVal : 'timezone' }, {
     /** @override */
     _createDataProvider : function() {
         return new TzDataProvider(this.params.data);

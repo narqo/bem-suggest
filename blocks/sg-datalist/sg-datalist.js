@@ -1,23 +1,21 @@
 modules.define(
     'sg-datalist',
-    ['i-bem__dom', 'menu', 'BEMHTML'],
+    ['i-bem-dom', 'menu', 'BEMHTML'],
     function(provide, BemDom, Menu, BEMHTML) {
 
-provide(BemDom.decl(this.name, {
+provide(BemDom.declBlock(this.name, {
     onSetMod : {
         'js' : {
             'inited' : function() {
+                var menu = this._menu = this.findMixedBlock(Menu);
                 this._dataprovider = null;
-                this._menu = this.findBlockOn(Menu.getName())
-                    .on({
-                        'item-hover' : this._onMenuItemHover,
-                        'item-click' : this._onMenuItemClick
-                    }, this);
+                this._events(menu).on('item-hover', this._onMenuItemHover, this);
+                this._events(menu).on('item-click', this._onMenuItemClick, this);
             }
         },
 
-        'focused' : function(modNam, modVal) {
-            this._menu.setMod(modNam, modVal);
+        'focused' : function(modName, modVal) {
+            this._menu.setMod(modName, modVal);
         }
     },
 
@@ -50,7 +48,7 @@ provide(BemDom.decl(this.name, {
 
     // TODO: move to menu
     hoverNextItem : function(dir) {
-        var items = this._menu.getItems(),
+        var items = this._menu.getItems().toArray(),
             len = items.length;
 
         if(!len) return;
@@ -84,13 +82,15 @@ provide(BemDom.decl(this.name, {
      * @protected
      */
     _buildItemsBemjson : function(items) {
-        var mods = this._menu.getMods();
+        var menu = this._menu;
         return items.map(function(item) {
             return {
-                block : 'menu-item',
-                mods : {
-                    theme : mods.theme,
-                    disabled : mods.disabled
+                block : 'menu',
+                elem : 'item',
+                mix : 'i-bem',
+                elemMods : {
+                    theme : menu.getMod('theme'),
+                    disabled : menu.getMod('disabled')
                 },
                 val : item.val,
                 content : item.text
@@ -103,25 +103,26 @@ provide(BemDom.decl(this.name, {
     },
 
     _onMenuItemHover : function(e, data) {
-        this.emit('item-hover', data);
+        this._emit('item-hover', data);
     },
 
     _onMenuItemClick : function(e, data) {
-        this.emit('item-click', data);
+        this._emit('item-click', data);
     },
 
     _onProviderGotData : function(e, data) {
-        this ._updateMenu(data.result);
 
-        this.emit('items', data);
+        this
+            ._emit('items', data)
+            ._updateMenu(data.result);
     },
 
     _onProviderGotError : function(e, data) {
         // TODO: _onProviderGotError
-        this.emit('error', data);
+        this._emit('error', data);
     }
 }, {
-    live : true
+    lazyInit : true
 }));
 
 });

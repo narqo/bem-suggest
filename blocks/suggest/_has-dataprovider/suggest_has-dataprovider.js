@@ -1,6 +1,6 @@
 modules.define('suggest', function(provide, Suggest) {
 
-provide(Suggest.decl({ modName : 'has-dataprovider' }, {
+provide(Suggest.declMod({ modName : 'has-dataprovider', modVal : '*' }, {
     onSetMod : {
         'js' : {
             'inited' : function() {
