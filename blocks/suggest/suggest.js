@@ -155,6 +155,8 @@ provide(BemDom.declBlock(this.name, {
         });
 
         bestHeight && menuDomElem.css('max-height', Math.min(this.params.optionsMaxHeight, bestHeight));
+
+        this._popup.redraw();
     },
 
     _onKeyDown : function(e) {

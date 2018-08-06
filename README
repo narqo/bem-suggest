@@ -16,11 +16,11 @@ bem-suggest
 › git clone git://github.com/narqo/bem-suggest bem-suggest
 › cd bem-suggest
 › npm install
-› bower install
-› TMPL_ENGINE=bh enb server --port 3001
+› npm run deps
+› TMPL_ENGINE=bh npm run server
 ~~~
 
-Open `http://localhost:3001/tests/suggest/simple/simple.html` in browser.
+Open `http://localhost:8080/tests/suggest/simple/simple.html` in browser.
 
 ## License
 

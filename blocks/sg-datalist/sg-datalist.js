@@ -111,6 +111,7 @@ provide(BemDom.declBlock(this.name, {
     },
 
     _onProviderGotData : function(e, data) {
+
         this
             ._emit('items', data)
             ._updateMenu(data.result);

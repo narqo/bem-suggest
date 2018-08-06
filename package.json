@@ -1,9 +1,10 @@
 {
   "name": "bem-suggest",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "",
   "scripts": {
     "deps": "bower i",
+    "server": "enb server",
     "lint": "jscs .",
     "tmpl-specs": "enb make tmpl-specs",
     "test": "npm run tmpl-specs",
